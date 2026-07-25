@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Overview</div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">A snapshot of where things stand today.</p>
+  </div>
+  <button class="btn btn-brass" id="openAddBtn">+ Add Transaction</button>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:18px;">
+  <div class="card stat-card">
+    <div class="stat-label">Total Balance</div>
+    <div class="stat-value" id="statBalance">—</div>
+    <div class="stat-delta" id="statBalanceDelta"></div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Income</div>
+    <div class="stat-value" id="statIncome">—</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Expenses</div>
+    <div class="stat-value" id="statExpenses">—</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Savings Goal</div>
+    <div class="stat-value" id="statSavingsPct">—</div>
+    <div class="progress-track" style="margin-top:2px;"><div class="progress-fill" id="statSavingsBar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:18px;">
+  <div class="card chart-card">
+    <div class="flex-between" style="margin-bottom:12px;">
+      <div class="card-title" style="margin:0;">Monthly Spending Trend</div>
+      <input type="month" class="month-selector" id="monthSelector">
+    </div>
+    <canvas id="monthlyChart" height="140"></canvas>
+  </div>
+  <div class="card chart-card">
+    <div class="card-title">Spending by Category</div>
+    <canvas id="categoryChart" height="140"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="flex-between" style="margin-bottom:10px;">
+    <div class="card-title" style="margin:0;">Recent Transactions</div>
+    <a href="transactions.html" id="viewAllLink" class="btn btn-outline btn-sm">View All</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Description</th><th>Category</th><th>Date</th><th style="text-align:right;">Amount</th><th></th></tr></thead>
+      <tbody id="recentTxBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add / Edit Transaction Modal -->
+<div class="modal-overlay" id="transactionModal" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add Transaction</h3>
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+    </div>
+    <form id="transactionForm">
+      <div class="modal-body">
+        <div class="tabs" style="margin-bottom:18px;">
+          <button type="button" class="tab-btn expense-active active" data-type="expense">Expense</button>
+          <button type="button" class="tab-btn income-active" data-type="income">Income</button>
+        </div>
+        <input type="hidden" id="txId">
+        <div class="form-row">
+          <label for="description">Description</label>
+          <input type="text" id="description" required placeholder="e.g. Grocery run at Nature's Basket">
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" min="0.01" step="0.01" required placeholder="0.00">
+          </div>
+          <div class="form-row">
+            <label for="date">Date</label>
+            <input type="date" id="date" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Category</label>
+          <div class="category-grid" id="categoryGrid"></div>
+          <input type="hidden" id="category" required>
+        </div>
+        <div id="formError" class="error-text" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveTxBtn">Save Transaction</button>
+      </div>
+    </form>
+  </div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

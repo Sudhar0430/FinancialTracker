@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Account</div>
+    <h1 class="page-title">Settings</h1>
+    <p class="page-sub">Your profile and preferences.</p>
+  </div>
+</div>
+
+<div class="grid grid-2-1">
+  <div class="card">
+    <div class="card-title">Profile</div>
+    <form id="settings-form">
+      <div class="form-row"><label for="settings-name">Full name</label><input type="text" id="settings-name" required></div>
+      <div class="form-row"><label for="settings-email">Email</label><input type="email" id="settings-email" required></div>
+      <div class="form-row"><label for="settings-password">New password</label><input type="password" id="settings-password" placeholder="Leave blank to keep current password"></div>
+      <div class="form-row"><label for="settings-income">Monthly income (used for benchmarks)</label><input type="number" id="settings-income" min="0"></div>
+      <div id="settingsError" class="error-text" style="display:none;"></div>
+      <button type="submit" class="btn btn-primary" id="settingsSaveBtn">Save Changes</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Preferences</div>
+    <div class="form-row"><label for="settings-currency">Currency symbol</label>
+      <select id="settings-currency">
+        <option value="₹">₹ Indian Rupee</option>
+        <option value="$">$ US Dollar</option>
+        <option value="€">€ Euro</option>
+        <option value="£">£ British Pound</option>
+      </select>
+      <div class="hint">Applies across the whole app.</div>
+    </div>
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="settings-darkmode" style="width:auto;"> Dark mode
+      </label>
+    </div>
+    <button class="btn btn-outline" style="width:100%;" id="savePrefsBtn">Save Preferences</button>
+    <hr class="divider">
+    <div class="card-title" style="color:var(--rust);">Danger Zone</div>
+    <button class="btn btn-danger" style="width:100%;" id="logoutAllBtn">Log out of this device</button>
+  </div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/settings.js"></script>
+</body>
+</html>

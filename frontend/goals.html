@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Planning</div>
+    <h1 class="page-title">Goals</h1>
+    <p class="page-sub">What you're saving toward, and how close you are.</p>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <select id="goalSortSelect"><option value="priority">Sort: Priority</option><option value="deadline">Sort: Deadline</option></select>
+    <button class="btn btn-brass" id="openGoalBtn">+ Add Goal</button>
+  </div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:20px;">
+  <div class="card stat-card"><div class="stat-label">Total Saved</div><div class="stat-value" id="summary-total">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Top Goal</div><div class="stat-value" id="summary-top" style="font-size:17px;">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Completed</div><div class="stat-value" id="summary-complete">—</div></div>
+</div>
+
+<h3 class="section-title">Active Goals</h3>
+<div class="grid grid-3" id="goals-container" style="margin-bottom:26px;"></div>
+
+<div id="completed-goals-section">
+  <h3 class="section-title">Completed</h3>
+  <div class="table-wrap card">
+    <table>
+      <thead><tr><th>Goal</th><th>Target</th><th>Completed On</th></tr></thead>
+      <tbody id="goal-history-list"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Goal Modal -->
+<div class="modal-overlay" id="goalModalOverlay" hidden>
+  <div class="modal goal-modal">
+    <div class="modal-header"><h3 id="goalModalTitle">Add Goal</h3><button class="modal-close" id="goalModalClose">&times;</button></div>
+    <form id="goal-form">
+      <div class="modal-body">
+        <input type="hidden" id="goalId">
+        <div class="form-row"><label for="title">Goal title</label><input type="text" id="title" required placeholder="e.g. Emergency travel fund"></div>
+        <div class="form-grid">
+          <div class="form-row"><label for="target">Target amount</label><input type="number" id="target" min="1" required></div>
+          <div class="form-row"><label for="saved">Already saved</label><input type="number" id="saved" min="0" value="0"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label for="date">Target date</label><input type="date" id="date"></div>
+          <div class="form-row"><label for="priority">Priority</label>
+            <select id="priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+          </div>
+        </div>
+        <div class="form-row"><label for="tag">Icon / tag</label>
+          <select id="tag">
+            <option value="💰">💰 General</option><option value="✈️">✈️ Travel</option><option value="🏠">🏠 Home</option>
+            <option value="🚗">🚗 Vehicle</option><option value="🎓">🎓 Education</option><option value="💍">💍 Wedding</option><option value="🩺">🩺 Health</option>
+          </select>
+        </div>
+        <div class="form-row"><label for="note">Note</label><textarea id="note" placeholder="e.g. plan to add ₹5,000 every month"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="goalCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="goalSaveBtn">Save Goal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Quick Add Funds Modal -->
+<div class="modal-overlay" id="fundsModalOverlay" hidden>
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header"><h3>Add Funds</h3><button class="modal-close" id="fundsModalClose">&times;</button></div>
+    <form id="funds-form">
+      <div class="modal-body">
+        <div class="form-row"><label for="fundsAmount">Amount to add</label><input type="number" id="fundsAmount" min="1" required></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="fundsCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Completion popup -->
+<div id="completion-popup" class="toast toast-success" style="position:fixed; top:24px; left:50%; transform:translateX(-50%); display:none; z-index:300;">🎉 Goal completed!</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/goals.js"></script>
+</body>
+</html>

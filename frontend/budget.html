@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Planner · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Planning</div>
+    <h1 class="page-title">Budget Planner</h1>
+    <p class="page-sub">
+      A lighter, separate planning ledger — not the same data as your Transactions page.
+      Use this for quick "what-if" budgeting without touching your real transaction history.
+    </p>
+  </div>
+  <button class="btn btn-brass" id="openBudgetBtn">+ Add Entry</button>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:20px;">
+  <div class="card stat-card"><div class="stat-label">Total Income</div><div class="stat-value" id="total-income">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Total Expenses</div><div class="stat-value" id="total-expenses">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Net Balance</div><div class="stat-value" id="net-balance">—</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Budget Entries</div>
+  <div id="budget-entries"></div>
+</div>
+
+<div class="modal-overlay" id="budget-modal" hidden>
+  <div class="modal">
+    <div class="modal-header"><h3>Add Budget Entry</h3><button class="modal-close" id="budgetModalClose">&times;</button></div>
+    <form id="budget-form">
+      <div class="modal-body">
+        <div class="tabs" style="margin-bottom:18px;">
+          <button type="button" class="tab-btn expense-active active" data-type="expense">Expense</button>
+          <button type="button" class="tab-btn income-active" data-type="income">Income</button>
+        </div>
+        <div class="form-row"><label for="budgetCategory">Category</label>
+          <select id="budgetCategory"></select>
+        </div>
+        <div class="form-row"><label for="budgetAmount">Amount</label><input type="number" id="budgetAmount" min="0.01" step="0.01" required></div>
+        <div class="form-row"><label for="budgetNote">Note</label><input type="text" id="budgetNote" placeholder="Optional"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="budgetCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="budget-popup" class="toast toast-success" style="position:fixed; top:24px; left:50%; transform:translateX(-50%); display:none; z-index:300;">Entry added ✓</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/budget.js"></script>
+</body>
+</html>

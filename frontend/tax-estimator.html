@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax Estimator · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Obligations</div>
+    <h1 class="page-title">Tax Estimator</h1>
+    <p class="page-sub">India · Old vs New Regime (FY 2025–26 slabs)</p>
+  </div>
+  <div class="tabs" id="regime-toggle">
+    <button type="button" class="tab-btn active" data-regime="old">Old Regime</button>
+    <button type="button" class="tab-btn" data-regime="new">New Regime</button>
+  </div>
+</div>
+<p id="regime-description" class="hint" style="margin:-10px 0 20px;">Old Regime lets you claim deductions like 80C, 80D, HRA and more.</p>
+
+<div class="grid grid-2" style="margin-bottom:18px;">
+  <div class="card">
+    <div class="card-title">Income</div>
+    <div class="form-row"><label for="salary">Salary</label><input type="number" id="salary" min="0" value="0"></div>
+    <div class="form-row"><label for="freelance">Freelance / Business</label><input type="number" id="freelance" min="0" value="0"></div>
+    <div class="form-row"><label for="interest">Interest Income</label><input type="number" id="interest" min="0" value="0"></div>
+    <div class="form-row"><label for="capital-gains">Capital Gains</label><input type="number" id="capital-gains" min="0" value="0"></div>
+    <div class="form-row"><label for="other-income">Other Income</label><input type="number" id="other-income" min="0" value="0"></div>
+  </div>
+  <div class="card" id="deductionsCard">
+    <div class="card-title">Deductions <span class="faint" style="font-weight:400;">(Old Regime only)</span></div>
+    <div class="form-row"><label for="80c">Section 80C <span class="faint">(cap ₹1,50,000)</span></label><input type="number" id="80c" min="0" value="0"></div>
+    <div class="form-row"><label for="80d">Section 80D (Health Insurance)</label><input type="number" id="80d" min="0" value="0"></div>
+    <div class="form-row"><label for="80tta">Section 80TTA <span class="faint">(cap ₹10,000)</span></label><input type="number" id="80tta" min="0" value="0"></div>
+    <div class="form-row"><label for="hra">HRA Exemption</label><input type="number" id="hra" min="0" value="0"></div>
+    <div class="form-row"><label for="other-deductions">Other Deductions</label><input type="number" id="other-deductions" min="0" value="0"></div>
+  </div>
+</div>
+
+<button class="btn btn-brass" id="calculate-btn" style="margin-bottom:18px;">Calculate Tax</button>
+
+<div class="grid grid-4" style="margin-bottom:18px;">
+  <div class="card stat-card"><div class="stat-label">Gross Income</div><div class="stat-value" id="gross-income" style="font-size:19px;">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Total Deductions</div><div class="stat-value" id="total-deductions" style="font-size:19px;">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Taxable Income</div><div class="stat-value" id="taxable-income" style="font-size:19px;">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Tax Liability</div><div class="stat-value" id="tax-liability" style="font-size:19px;">—</div><div class="faint" style="font-size:12px;">Effective rate: <span id="effective-rate">—</span></div></div>
+</div>
+
+<div class="grid grid-2-1" style="margin-bottom:18px;">
+  <div class="card chart-card"><div class="card-title">Taxable Income vs Tax Paid</div><canvas id="taxChart" height="160"></canvas></div>
+  <div class="card">
+    <div class="card-title">Tax Tips</div>
+    <ul id="tax-tips" style="margin:0; padding-left:18px; line-height:1.9; font-size:13px;"></ul>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+  <div class="flex-between" style="margin-bottom:12px;">
+    <button class="btn btn-outline" id="compare-btn">Compare Regimes</button>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-outline" id="export-csv">Export CSV</button>
+      <button class="btn btn-outline" id="save-plan">Save Plan</button>
+    </div>
+  </div>
+  <div id="slabs-container" style="display:none;">
+    <div class="card-title">Slab-by-Slab Breakdown</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Range</th><th>Rate</th><th style="text-align:right;">Tax from this slab</th></tr></thead>
+      <tbody id="slabs-body"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<p class="hint">This is an estimate for planning purposes only and is not a substitute for advice from a qualified CA or tax professional. Slab rates should be reconfirmed each financial year.</p>
+
+<div class="modal-overlay" id="comparison-modal" hidden>
+  <div class="modal">
+    <div class="modal-header"><h3>Old vs New Regime</h3><button class="modal-close" id="comparisonModalClose">&times;</button></div>
+    <div class="modal-body">
+      <div class="grid grid-2" style="margin-bottom:14px;">
+        <div class="card stat-card"><div class="stat-label">Old Regime Tax</div><div class="stat-value" id="old-regime-tax" style="font-size:20px;">—</div></div>
+        <div class="card stat-card"><div class="stat-label">New Regime Tax</div><div class="stat-value" id="new-regime-tax" style="font-size:20px;">—</div></div>
+      </div>
+      <p id="regime-recommendation" class="hint"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="comparisonCloseBtn">Close</button>
+      <button class="btn btn-primary" id="applyRecommendationBtn">Apply Recommendation</button>
+    </div>
+  </div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/tax-estimator.js"></script>
+</body>
+</html>

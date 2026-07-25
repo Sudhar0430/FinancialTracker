@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insurance · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Obligations</div>
+    <h1 class="page-title">Insurance Manager</h1>
+    <p class="page-sub">Policies, premiums, and coverage — at a glance.</p>
+  </div>
+  <button class="btn btn-brass" id="openInsBtn">+ Add Policy</button>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:20px;">
+  <div class="card stat-card"><div class="stat-label">Active Policies</div><div class="stat-value" id="activePoliciesCount">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Monthly Premium</div><div class="stat-value" id="monthlyPremium">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Annual Premium</div><div class="stat-value" id="annualPremium">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Coverage Score</div><div class="stat-value" id="coverageScore">—</div></div>
+</div>
+
+<div class="grid grid-2-1" style="margin-bottom:20px;">
+  <div class="card chart-card"><div class="card-title">Premium by Type</div><canvas id="insuranceChart" height="160"></canvas></div>
+  <div class="card">
+    <div class="card-title">Coverage Gap Checklist</div>
+    <div id="gapChecklist" class="faint" style="font-size:13px;"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="filters-row">
+    <input type="text" id="insuranceSearch" placeholder="Search policies…">
+    <select id="insuranceTypeFilter"><option value="">All types</option></select>
+    <select id="insuranceSortBy"><option value="premium">Sort: Premium</option><option value="endDate">Sort: Expiry</option></select>
+  </div>
+  <div id="insurancePoliciesList"></div>
+</div>
+
+<div class="modal-overlay" id="insuranceModal" hidden>
+  <div class="modal">
+    <div class="modal-header"><h3 id="insModalTitle">Add Policy</h3><button class="modal-close" id="insModalClose">&times;</button></div>
+    <form id="insuranceForm">
+      <div class="modal-body">
+        <input type="hidden" id="insId">
+        <div class="form-row"><label for="insName">Policy name</label><input type="text" id="insName" required></div>
+        <div class="form-grid">
+          <div class="form-row"><label for="insType">Type</label>
+            <select id="insType"><option>Health</option><option>Life</option><option>Auto</option><option>Home</option><option>Travel</option><option>Other</option></select>
+          </div>
+          <div class="form-row"><label for="insProvider">Provider</label><input type="text" id="insProvider"></div>
+        </div>
+        <div class="form-row"><label for="insPolicyNumber">Policy number</label><input type="text" id="insPolicyNumber"></div>
+        <div class="form-grid">
+          <div class="form-row"><label for="insStartDate">Start date</label><input type="date" id="insStartDate"></div>
+          <div class="form-row"><label for="insEndDate">End date</label><input type="date" id="insEndDate" required></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label for="insPremium">Premium amount</label><input type="number" id="insPremium" min="0" required></div>
+          <div class="form-row"><label for="insFrequency">Premium frequency</label>
+            <select id="insFrequency"><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="half-yearly">Half-yearly</option><option value="yearly" selected>Yearly</option><option value="one-time">One-time</option></select>
+          </div>
+        </div>
+        <div class="form-row"><label for="insCoverage">Coverage amount</label><input type="number" id="insCoverage" min="0" required></div>
+        <div class="form-row"><label for="insBeneficiaries">Beneficiaries (comma-separated)</label><input type="text" id="insBeneficiaries" placeholder="e.g. Spouse, Child"></div>
+        <div class="form-row"><label for="insNotes">Notes</label><textarea id="insNotes"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="insCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Policy</button>
+      </div>
+    </form>
+  </div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/insurance.js"></script>
+</body>
+</html>

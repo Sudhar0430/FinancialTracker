@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Fund · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Planning</div>
+    <h1 class="page-title">Emergency Fund</h1>
+    <p class="page-sub">Your cushion for the unexpected.</p>
+  </div>
+</div>
+
+<div class="grid grid-2-1" style="margin-bottom:20px;">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:8px;">
+      <div class="card-title" style="margin:0;">Progress toward goal</div>
+      <span class="mono" id="progress-percentage">0%</span>
+    </div>
+    <div class="progress-track" style="height:12px; margin-bottom:8px;"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+    <div class="faint" style="font-size:12.5px;" id="goal-amount-display">Goal: —</div>
+    <div id="lowCoverageWarning" style="display:none; margin-top:14px; padding:10px 14px; background:var(--rust-soft); color:var(--rust); border-radius:8px; font-size:13px; font-weight:600;">
+      ⚠️ Coverage has dropped below 3 months of expenses.
+    </div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Current Balance</div>
+    <div class="stat-value" id="current-balance">—</div>
+    <hr class="divider" style="margin:10px 0;">
+    <div class="stat-label">Months Covered</div>
+    <div class="stat-value" id="months-covered" style="font-size:20px;">—</div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:20px;">
+  <div class="card">
+    <div class="card-title">Configuration</div>
+    <div class="form-row"><label for="fund-goal">Fund goal amount</label><input type="number" id="fund-goal" min="0"></div>
+    <div class="form-row"><label for="monthly-expenses">Monthly expenses</label><input type="number" id="monthly-expenses" min="0"></div>
+    <div class="form-row"><label for="current-savings">Current savings</label><input type="number" id="current-savings" min="0"></div>
+    <button class="btn btn-primary" id="update-goals" style="width:100%;">Update Goals</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Manage Funds</div>
+    <div class="form-row"><label for="transaction-amount">Amount</label><input type="number" id="transaction-amount" min="0.01" step="0.01"></div>
+    <div class="form-row"><label for="transaction-date">Date</label><input type="date" id="transaction-date"></div>
+    <div class="form-row"><label for="transaction-notes">Notes</label><input type="text" id="transaction-notes" placeholder="Optional"></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-brass" style="flex:1;" id="add-funds">+ Add Funds</button>
+      <button class="btn btn-outline" style="flex:1;" id="withdraw-funds">− Withdraw</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Transaction History</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Type</th><th>Notes</th><th style="text-align:right;">Amount</th></tr></thead>
+    <tbody id="transaction-history"><tr class="empty-row"><td colspan="4">No transactions yet</td></tr></tbody>
+  </table></div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/emergency-fund.js"></script>
+</body>
+</html>

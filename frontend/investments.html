@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investments · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div class="page-header">
+  <div>
+    <div class="page-eyebrow">Markets</div>
+    <h1 class="page-title">Stocks & Investments</h1>
+    <p class="page-sub">Live quotes need a market-data API key — see the note below. Your portfolio tracker works fully offline of that.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <div class="flex-between" style="margin-bottom:12px;">
+    <div style="display:flex; gap:10px; flex:1;">
+      <input type="text" id="symbolInput" placeholder="Symbol, e.g. TCS.BSE" style="max-width:220px;">
+      <button class="btn btn-primary" id="searchBtn">Search</button>
+    </div>
+    <div class="tabs">
+      <button type="button" class="interval-btn tab-btn active" data-interval="5min">5m</button>
+      <button type="button" class="interval-btn tab-btn" data-interval="15min">15m</button>
+      <button type="button" class="interval-btn tab-btn" data-interval="30min">30m</button>
+      <button type="button" class="interval-btn tab-btn" data-interval="60min">60m</button>
+    </div>
+  </div>
+  <div id="quoteHeader" style="display:none; margin-bottom:14px;">
+    <span class="display" id="stockSymbol" style="font-size:20px;"></span>
+    <span class="mono" id="currentPrice" style="font-size:20px; margin-left:12px;"></span>
+    <span id="changeAmount" style="margin-left:10px;"></span>
+    <span id="changePercent"></span>
+  </div>
+  <div id="marketDataNotice" class="empty-state">
+    <div class="display">Market data isn't connected yet</div>
+    Add an Alpha Vantage API key (ALPHA_VANTAGE_KEY) to your backend environment to enable live symbol search, price charts, and volume data here.
+    Get a free key at alphavantage.co — see the README for wiring instructions.
+  </div>
+  <div id="chartsRow" class="grid grid-2" style="display:none; margin-top:14px;">
+    <div><canvas id="priceChart" height="160"></canvas></div>
+    <div><canvas id="volumeChart" height="160"></canvas></div>
+  </div>
+  <div class="table-wrap" style="margin-top:14px; display:none;" id="dataTableWrap">
+    <table><thead><tr><th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody id="dataTableBody"></tbody></table>
+  </div>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:20px;">
+  <div class="card stat-card"><div class="stat-label">Portfolio Value</div><div class="stat-value" id="totalPortfolioValueDisplay">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Stocks Value</div><div class="stat-value" id="stocksValueDisplay">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Mutual Funds Value</div><div class="stat-value" id="mutualFundsValueDisplay">—</div></div>
+  <div class="card stat-card"><div class="stat-label">Annual Return</div><div class="stat-value" id="annualReturnPercentage">—</div><div class="faint" style="font-size:12px;">Benchmark: <span id="benchmarkReturnPercentage">12%</span></div></div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:20px;">
+  <div class="card chart-card"><div class="card-title">Portfolio Allocation</div><canvas id="portfolioAllocationChartCanvas" height="160"></canvas></div>
+  <div class="card chart-card"><div class="card-title">Returns by Holding</div><canvas id="returnsChartCanvas" height="160"></canvas></div>
+</div>
+
+<div class="card">
+  <div class="flex-between" style="margin-bottom:12px;">
+    <div class="card-title" style="margin:0;">Your Holdings</div>
+    <button class="btn btn-brass btn-sm" id="openInvBtn">+ Add Holding</button>
+  </div>
+  <div class="filters-row">
+    <input type="text" id="investmentsSearchInput" placeholder="Search holdings…">
+    <select id="investmentTypeFilterSelect"><option value="">All types</option><option value="stock">Stock</option><option value="mutual_fund">Mutual Fund</option><option value="etf">ETF</option><option value="other">Other</option></select>
+    <select id="investmentSortBySelect"><option value="value">Sort: Value</option><option value="return">Sort: Return %</option><option value="date">Sort: Date</option><option value="name">Sort: Name</option></select>
+  </div>
+  <div id="investmentsListContainer"></div>
+</div>
+
+<div class="modal-overlay" id="investmentModalOverlay" hidden>
+  <div class="modal">
+    <div class="modal-header"><h3 id="invModalTitle">Add Holding</h3><button class="modal-close" id="invModalClose">&times;</button></div>
+    <form id="investmentFormContainer">
+      <div class="modal-body">
+        <input type="hidden" id="invId">
+        <div class="form-grid">
+          <div class="form-row"><label for="invType">Type</label><select id="invType"><option value="stock">Stock</option><option value="mutual_fund">Mutual Fund</option><option value="etf">ETF</option><option value="other">Other</option></select></div>
+          <div class="form-row"><label for="invName">Name</label><input type="text" id="invName" required></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label for="invSymbol">Symbol / ISIN</label><input type="text" id="invSymbol"></div>
+          <div class="form-row"><label for="invPurchaseDate">Purchase date</label><input type="date" id="invPurchaseDate"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label for="invQuantity">Quantity</label><input type="number" id="invQuantity" min="0.0001" step="0.0001" required></div>
+          <div class="form-row"><label for="invBuyPrice">Buy price</label><input type="number" id="invBuyPrice" min="0" step="0.01" required></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label for="investmentCurrentPriceInput">Current price</label><input type="number" id="investmentCurrentPriceInput" min="0" step="0.01" required></div>
+          <div class="form-row"><label for="invBroker">Broker</label><input type="text" id="invBroker"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label for="invCategory">Category</label><input type="text" id="invCategory" placeholder="e.g. Large Cap"></div>
+          <div class="form-row"><label for="invDividendYield">Dividend yield %</label><input type="number" id="invDividendYield" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="form-row"><label for="invNotes">Notes</label><textarea id="invNotes"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="invCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Holding</button>
+      </div>
+    </form>
+  </div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/investments.js"></script>
+</body>
+</html>

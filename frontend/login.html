@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand"><span class="brand-mark">◆</span><span class="brand-name">Ledgerly</span></div>
+    <p class="auth-tag">Your finances, quietly under control.</p>
+
+    <form id="loginForm">
+      <div class="form-row">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="form-row">
+        <label for="password">Password</label>
+        <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <div id="loginError" class="error-text" style="display:none; margin-bottom:12px;"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;" id="loginBtn">Log in</button>
+    </form>
+
+    <p class="auth-switch">New to Ledgerly? <a href="register.html">Create an account</a></p>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script>
+  if (localStorage.getItem('ft_token')) window.location.href = 'dashboard.html';
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+    errorEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Logging in…';
+    try {
+      const data = await api.post('/auth/login', {
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value
+      });
+      localStorage.setItem('ft_token', data.token);
+      localStorage.setItem('ft_user', JSON.stringify(data.user));
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Log in';
+    }
+  });
+</script>
+</body>
+</html>

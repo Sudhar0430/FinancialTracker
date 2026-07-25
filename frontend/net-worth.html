@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Net Worth · Ledgerly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+</head>
+<body>
+<script>if (!localStorage.getItem('ft_token')) window.location.href = 'login.html';</script>
+
+<template id="tpl">
+<div id="nwt-inputContainer">
+  <div class="page-header"><div><div class="page-eyebrow">Planning</div><h1 class="page-title">Net Worth Calculator</h1><p class="page-sub">A snapshot of what you own versus what you owe.</p></div></div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-title">About You</div>
+    <div class="form-row"><label for="nwt-userName">Name</label><input type="text" id="nwt-userName" placeholder="Optional"></div>
+    <div class="form-row"><label>Age group</label>
+      <div class="category-grid" id="ageGroupButtons">
+        ${['18-24','25-34','35-44','45-54','55-64','65+'].map(g => `<button type="button" class="category-option age-group-btn" data-group="${g}">${g}</button>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-title">Assets</div>
+      <div class="form-row"><label for="nwt-cashAmount">Cash & Savings</label><input type="number" id="nwt-cashAmount" min="0" value="0"></div>
+      <div class="form-row"><label for="nwt-investmentAmount">Investments</label><input type="number" id="nwt-investmentAmount" min="0" value="0"></div>
+      <div class="form-row"><label for="nwt-realEstateAmount">Real Estate</label><input type="number" id="nwt-realEstateAmount" min="0" value="0"></div>
+      <div class="form-row"><label for="nwt-otherAssetsAmount">Other Assets</label><input type="number" id="nwt-otherAssetsAmount" min="0" value="0"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Liabilities</div>
+      <div class="form-row"><label for="nwt-creditCardDebt">Credit Card Debt</label><input type="number" id="nwt-creditCardDebt" min="0" value="0"></div>
+      <div class="form-row"><label for="nwt-studentLoans">Student Loans</label><input type="number" id="nwt-studentLoans" min="0" value="0"></div>
+      <div class="form-row"><label for="nwt-mortgageAmount">Mortgage</label><input type="number" id="nwt-mortgageAmount" min="0" value="0"></div>
+      <div class="form-row"><label for="nwt-otherDebts">Other Debts</label><input type="number" id="nwt-otherDebts" min="0" value="0"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="card-title">Goal</div>
+    <div class="form-grid">
+      <div class="form-row"><label for="nwt-netWorthGoal">Target net worth</label><input type="number" id="nwt-netWorthGoal" min="0"></div>
+      <div class="form-row"><label for="nwt-timeframe">Timeframe (months)</label><input type="number" id="nwt-timeframe" min="1" value="12"></div>
+    </div>
+  </div>
+  <button class="btn btn-brass" id="nwt-generateDashboard" style="width:100%;">Generate Dashboard</button>
+</div>
+
+<div id="nwt-dashboardContainer" style="display:none;">
+  <div class="page-header">
+    <div><div class="page-eyebrow">Planning</div><h1 class="page-title">Net Worth Dashboard</h1></div>
+    <div style="display:flex; gap:10px;">
+      <select id="trendPeriodToggle"><option value="all">All</option><option value="3">3M</option><option value="6">6M</option><option value="12">1Y</option><option value="60">5Y</option></select>
+      <button class="btn btn-outline" id="nwt-editDetailsBtn">Edit Details</button>
+    </div>
+  </div>
+
+  <div class="grid grid-2-1" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-title">Net Worth Trend</div>
+      <canvas id="nwt-trendChart" height="150"></canvas>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">Current Net Worth</div>
+      <div class="stat-value" id="nwt-currentNetWorth">—</div>
+      <div class="hint" id="nwt-ageComparisonBadge"></div>
+      <hr class="divider" style="margin:10px 0;">
+      <div class="stat-label">Goal Progress</div>
+      <div class="progress-track" style="margin-top:6px;"><div class="progress-fill" id="nwt-goalProgressBar" style="width:0%"></div></div>
+      <div class="hint" id="nwt-goalProgressText"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:18px;">
+    <div class="card"><div class="card-title">Assets Breakdown</div><canvas id="nwt-assetsChart" height="160"></canvas></div>
+    <div class="card"><div class="card-title">Liabilities Breakdown</div><canvas id="nwt-liabilitiesChart" height="160"></canvas></div>
+  </div>
+
+  <div class="grid grid-2-1" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-title">Projection</div>
+      <canvas id="nwt-projectionChart" height="150"></canvas>
+      <p class="hint" style="margin-top:10px;">Projected net worth: <strong id="nwt-projectedNetWorth">—</strong> · Growth needed to hit goal: <strong id="nwt-neededGrowth">—</strong>/mo</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Debt-to-Asset Ratio</div>
+      <div class="stat-value" id="nwt-debtRatioValue" style="font-size:26px;">—</div>
+      <div id="nwt-debtRatioText" class="badge" style="margin-top:6px;">—</div>
+      <hr class="divider">
+      <div class="stat-label">Monthly / Annual Change</div>
+      <div>Monthly: <strong id="nwt-monthlyChange">—</strong></div>
+      <div>Annual: <strong id="nwt-annualChange">—</strong></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Insights</div>
+    <ul id="nwt-insightsList" style="margin:0; padding-left:18px; line-height:1.9;"></ul>
+  </div>
+</div>
+</template>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/net-worth.js"></script>
+</body>
+</html>
