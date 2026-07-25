@@ -56,8 +56,13 @@ function renderShell(activeHref) {
   shell.innerHTML = `
     <aside class="sidebar">
       <div class="brand">
-        <span class="brand-mark">◆</span>
-        <span class="brand-name">Ledgerly</span>
+        <div class="brand-left">
+          <span class="brand-mark">◆</span>
+          <span class="brand-name">Ledgerly</span>
+        </div>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close menu">
+          <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <nav class="nav">${navHtml}</nav>
       <div class="sidebar-footer">
@@ -90,6 +95,9 @@ function renderShell(activeHref) {
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('mobileNavToggle').addEventListener('click', () => {
     shell.querySelector('.sidebar').classList.toggle('open');
+  });
+  document.getElementById('sidebarCloseBtn').addEventListener('click', () => {
+    shell.querySelector('.sidebar').classList.remove('open');
   });
   document.getElementById('darkModeToggle').addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');

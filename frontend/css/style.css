@@ -84,9 +84,28 @@ input, select, textarea { font-family: inherit; }
   height: 100vh;
   overflow-y: auto;
 }
-.brand { display: flex; align-items: center; gap: 10px; padding: 6px 10px 24px; }
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px 24px; }
+.brand-left { display: flex; align-items: center; gap: 10px; }
 .brand-mark { color: var(--brass); font-size: 18px; }
 .brand-name { font-family: var(--font-display); font-size: 19px; font-weight: 600; letter-spacing: 0.01em; color: #fff; }
+
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #C7CFD8;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.sidebar-close-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.sidebar-close-btn svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 2.2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
 
 .nav { flex: 1; }
 .nav-group { margin-bottom: 18px; }
@@ -285,6 +304,7 @@ textarea { resize: vertical; min-height: 70px; }
   .sidebar { position: fixed; left: 0; top: 0; z-index: 60; transform: translateX(-100%); transition: transform .2s; }
   .sidebar.open { transform: translateX(0); }
   .mobile-nav-toggle { display: inline-flex; }
+  .sidebar-close-btn { display: inline-flex; }
   .content { padding: 20px 16px 40px; }
   .form-grid { grid-template-columns: 1fr; }
 }
